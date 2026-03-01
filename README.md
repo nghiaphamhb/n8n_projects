@@ -3,6 +3,8 @@
 My personal collection of n8n workflows, automations, and experiments.
 This repository is used to organize, track, and share various n8n projects.
 
+![Background](assets/background.png)
+
 ---
 
 ## 📌 Overview

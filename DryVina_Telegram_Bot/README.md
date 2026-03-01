@@ -16,56 +16,10 @@ This workflow connects **Telegram + AI (LLM) + Google Sheets** to create a smart
 
 ---
 
-## 🧠 Features
+## 🔄 Workflow Architecture
 
-### 1. Intent Detection (AI)
+![Workflow Architecture](../assets/DryVina.png)
 
-* Uses LLM to classify user messages into:
-
-  * `buy`
-  * `check_stock`
-  * `list_products`
-  * `other`
-
-### 2. Product Extraction
-
-* Extracts product names and quantities from messages
-* Supports multiple products in one request
-
-### 3. Smart Matching System
-
-* Fuzzy matching using:
-
-  * Text normalization (Vietnamese-friendly)
-  * Token comparison (Jaccard similarity)
-* Handles:
-
-  * Typos
-  * Different naming formats
-
-### 4. Inventory Integration
-
-* Connects to Google Sheets as a product database
-* Reads:
-
-  * Product name
-  * Stock quantity
-  * Unit
-
-### 5. Conversational AI Replies
-
-* Generates natural responses:
-
-  * Friendly tone ("tớ – cậu")
-  * Context-aware replies
-  * Handles edge cases (out of stock, unclear requests)
-
-### 6. Telegram Automation
-
-* Fully automated message handling
-* Sends responses directly back to users
-
----
 
 ## 🧩 Main Components
 
