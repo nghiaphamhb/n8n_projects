@@ -1,0 +1,484 @@
+{
+  "name": "DryVina workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -816,
+        80
+      ],
+      "id": "77465d29-c08f-4b89-bc85-b856d364c177",
+      "name": "Telegram Trigger",
+      "webhookId": "1f9a57b6-8c24-42f5-ba60-ec1f96e245b7",
+      "credentials": {
+        "telegramApi": {
+          "id": "ahUDy0zLw98mzmGW",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxTokens": 100
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        384
+      ],
+      "id": "6d2ca920-8317-4ba5-ac24-35637352e491",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "LqG0wtXcQePPg5ad",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1a_-Yah6YL9vAhDi_-D6YKep8_zskgWOQ_7omCsZqzOo",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        160,
+        -144
+      ],
+      "id": "261f74c9-c7c4-4878-bfc9-8abf051deab8",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "ZrR0SsOcf4FcG3yJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.intent }}",
+                    "rightValue": "=check_stock",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "222cb093-4c79-4664-bc15-e4593accf3ca"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "A"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ffdcc35f-80f1-449a-b19c-ce0de213f524",
+                    "leftValue": "={{ $json.output.intent }}",
+                    "rightValue": "buy",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "A"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0a0d1cad-9c44-4f9b-b119-4664ef98438c",
+                    "leftValue": "={{ $json.output.intent }}",
+                    "rightValue": "list_products",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "B"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "41e67bf2-ed91-4168-ae24-c92c147f7480",
+                    "leftValue": "={{ $json.output.intent }}",
+                    "rightValue": "other",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "C"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        64
+      ],
+      "id": "b2d323cf-eeca-49d5-a05e-57063e61cdb9",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = JSON.parse($input.first().json.text);\nreturn [{ json: { output: parsed } }];;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        96
+      ],
+      "id": "f2c09339-af24-41a2-ba8a-72453f7323ce",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Cậu có thể tham khảo danh sách đồ khô tại đây:\nhttps://docs.google.com/spreadsheets/d/1a_-Yah6YL9vAhDi_-D6YKep8_zskgWOQ_7omCsZqzOo/edit?usp=sharing",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        64
+      ],
+      "id": "0ad4acd6-a82c-4321-9820-b44a45201ff7",
+      "name": "Show list of products",
+      "webhookId": "a36d1c4c-8e4f-4e69-8c6f-0b4d9ebd8d16",
+      "credentials": {
+        "telegramApi": {
+          "id": "ahUDy0zLw98mzmGW",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        240
+      ],
+      "id": "fbb89c90-9c71-4460-8cad-5a60d59bd304",
+      "name": "Reply to unrelated messages",
+      "webhookId": "ab4ead2f-72cd-456f-ae22-3195082e2a81",
+      "credentials": {
+        "telegramApi": {
+          "id": "ahUDy0zLw98mzmGW",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lấy output từ node parse JSON\nconst parsed = $node[\"Code in JavaScript1\"].json.output;\nconst intent = parsed.intent || \"other\";\nconst products = Array.isArray(parsed.products) ? parsed.products : [];\n\n// Lấy kho từ Google Sheets (items hiện tại của node này chính là rows)\nconst inventoryRows = items.map(i => i.json);\n\nfunction normalize(s) {\n  return String(s || \"\")\n    .toLowerCase()\n    .normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\")\n    .replace(/đ/g, \"d\")\n    .replace(/\\b(kg|g|gr|gram|ml|l|goi|gói|bich|bịch|hop|hộp|lo|lọ|thung|thùng|tai|tải|lang|lạng)\\b/g, \" \")\n    .replace(/[0-9]+([.,][0-9]+)?/g, \" \")\n    .replace(/[^a-z0-9\\s]/g, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfunction tokenSet(s) {\n  return new Set(normalize(s).split(\" \").filter(Boolean));\n}\n\nfunction jaccard(aSet, bSet) {\n  const a = [...aSet];\n  const inter = a.filter(x => bSet.has(x)).length;\n  const union = new Set([...aSet, ...bSet]).size || 1;\n  return inter / union;\n}\n\nfunction matchOne(askedRaw, askedQty) {\n  const askedNorm = normalize(askedRaw);\n  const askedTokens = tokenSet(askedRaw);\n\n  if (!askedNorm) {\n    return {\n      requested_name: askedRaw,\n      asked_qty: Number(askedQty || 0),\n      match_found: false,\n      reason: \"empty_product\",\n      suggestion: null,\n      matched_product: null,\n      unit: \"\",\n      stock: 0,\n      score: 0,\n    };\n  }\n\n  const scored = inventoryRows.map(r => {\n    const product = String(r.Product || \"\");\n    const productNorm = normalize(product);\n    const productTokens = tokenSet(product);\n\n    const contains = (productNorm.includes(askedNorm) || askedNorm.includes(productNorm)) ? 1 : 0;\n    const jac = jaccard(askedTokens, productTokens);\n    const score = (contains ? 0.8 : 0) + jac;\n\n    const stock = Number(String(r.Count || \"0\").replace(\",\", \".\")) || 0;\n\n    return { row: r, score, stock };\n  });\n\n  scored.sort((a, b) => b.score - a.score);\n  const best = scored[0];\n  const THRESHOLD = 0.45;\n\n  if (!best || best.score < THRESHOLD) {\n    return {\n      requested_name: askedRaw,\n      asked_qty: Number(askedQty || 0),\n      match_found: false,\n      reason: \"not_found\",\n      suggestion: best?.row?.Product || null,\n      matched_product: null,\n      unit: \"\",\n      stock: 0,\n      score: best?.score ?? 0,\n    };\n  }\n\n  return {\n    requested_name: askedRaw,\n    asked_qty: Number(askedQty || 0),\n    match_found: true,\n    reason: \"\",\n    suggestion: null,\n    matched_product: best.row.Product,\n    unit: best.row.Unit || \"\",\n    stock: best.stock,\n    score: best.score,\n    row_number: best.row.row_number,\n  };\n}\n\n// Nếu user không nêu sản phẩm mà intent lại là A, ta vẫn trả về items=[]\nconst results = products.map(p => matchOne(p.name, p.qty));\n\n// message gốc\nconst userMessage = $node[\"Telegram Trigger\"].json.message?.text || \"\";\n\nreturn [{\n  json: {\n    intent,\n    user_message: userMessage,\n    items: results\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -144
+      ],
+      "id": "30230487-1802-45e1-89c9-d7d82858e59d",
+      "name": "A_MatchAll"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Bạn là nhân viên bán hàng của DryVina, xưng tớ – cậu, giọng thân thiện tự nhiên.\n\nInput:\n- user_message: {{ $json.user_message }}\n- intent: {{ $json.intent }}\n- items: {{ JSON.stringify($json.items) }}\n\nMỗi item có:\n- requested_name, asked_qty, match_found\n- matched_product, stock, unit\n- suggestion (nếu match_fail)\n\nNhiệm vụ: viết 1 tin nhắn trả lời tự nhiên.\n\nQuy tắc:\n1) Nếu items rỗng:\n- Hỏi lại cậu muốn hỏi món nào.\n- Gợi ý cách nhắn: \"còn tôm khô không\" hoặc \"cho tớ 2 gói khô gà\".\n\n2) Với từng item match_found=false:\n- Nói tớ chưa thấy món đó trong danh sách.\n- Nếu có suggestion: hỏi lại có phải cậu muốn \"suggestion\" không.\n\n3) Nếu asked_qty == 0 (hỏi tồn kho):\n- Nếu stock > 0: nói còn bao nhiêu + hỏi cậu muốn lấy bao nhiêu.\n- Nếu stock == 0: nói hết hàng + hỏi có muốn tớ gợi ý món khác không.\n\n4) Nếu asked_qty > 0 (mua):\n- Nếu stock >= asked_qty: xác nhận tớ giữ hàng + xin tên ngừo mua để chốt đơn.\n- Nếu 0 < stock < asked_qty: nói tớ chỉ còn stock + hỏi cậu lấy stock hay đổi món.\n- Nếu stock == 0: hết hàng + gợi ý món khác.\n\n5) Nếu nhiều item: trả lời gọn dạng bullet, nhưng vẫn thân thiện.\nChỉ xuất text, không JSON, không markdown code block.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        576,
+        -128
+      ],
+      "id": "4651c957-10a4-4ec7-a88f-2503bb91bb84",
+      "name": "A_ReplyComposer (LLM Chain)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Bạn là trợ lý bán hàng của DryVina (đồ khô Việt Nam). Bạn là một JSON generator.\n\nNhiệm vụ:\n1. Xác định ý định của user (intent)\n2. Trích xuất danh sách sản phẩm và số lượng (nếu có)\n\n====================\nSCHEMA (BẮT BUỘC)\n====================\nOutput phải là JSON hợp lệ với cấu trúc:\n\n{\n  \"intent\": \"check_stock\" | \"buy\" | \"list_products\" | \"other\",\n  \"products\": [\n    {\n      \"name\": string,\n      \"qty\": number\n    }, \n    {\n      \"name\": string,\n      \"qty\": number\n    }\n  ]\n}\n\n====================\nQUY TẮC XÁC ĐỊNH INTENT\n====================\n- \"check_stock\":\n  Khi user hỏi về sự tồn tại / còn hàng\n  (ví dụ: \"còn không\", \"có không\", \"hết chưa\")\n\n- \"buy\":\n  Khi user có ý định mua hoặc đặt hàng\n  Bao gồm:\n  + Có số lượng (ví dụ: \"2 khô gà\")\n  + Có từ ngữ mua (mua, lấy, cho, đặt, gửi)\n\n- \"list_products\":\n  Khi user hỏi danh sách / gợi ý\n  (ví dụ: \"có gì bán\", \"menu\", \"các loại đồ khô\")\n\n- \"other\":\n  Khi không liên quan hoặc không rõ ý định\n\nƯU TIÊN:\nbuy > check_stock > list_products > other\n\n====================\nQUY TẮC TRÍCH XUẤT SẢN PHẨM\n====================\n- Chỉ trích xuất sản phẩm được nhắc trong câu\n- Không được tự thêm sản phẩm không có trong input\n- Có thể có nhiều sản phẩm\n\n- Nếu có số lượng:\n  → qty = số đó\n\n- Nếu KHÔNG có số lượng:\n  → qty = 0\n\n- Chuẩn hóa tên sản phẩm:\n  + giữ nguyên ý nghĩa (ví dụ: \"khô gà\", \"mực rim\", \"tôm khô\")\n  + viết thường\n\n- Nếu không có sản phẩm:\n  → products = []\n\n====================\nXỬ LÝ TRƯỜNG HỢP MƠ HỒ\n====================\n- Nếu có sản phẩm nhưng không rõ intent:\n  → dùng \"check_stock\"\n\n- Nếu không có sản phẩm và không rõ:\n  → \"other\"\n\n====================\nVÍ DỤ\n====================\n\nInput: \"cho tớ 2 khô gà và 1 mực rim\"\nOutput:\n{\"intent\":\"buy\",\"products\":[{\"name\":\"khô gà\",\"qty\":2},{\"name\":\"mực rim\",\"qty\":1}]}\n\nInput: \"còn tôm khô không\"\nOutput:\n{\"intent\":\"check_stock\",\"products\":[{\"name\":\"tôm khô\",\"qty\":0}]}\n\nInput: \"shop có gì ngon\"\nOutput:\n{\"intent\":\"list_products\",\"products\":[]}\n\nInput: \"hello bạn\"\nOutput:\n{\"intent\":\"other\",\"products\":[]}\n\n====================\nYÊU CẦU ĐỊNH DẠNG (CỰC KỲ QUAN TRỌNG)\n====================\n- Chỉ xuất ra DUY NHẤT một JSON object hợp lệ\n- Không markdown (không ```json)\n- Không giải thích, không text dư\n- Không xuống dòng trước hoặc sau JSON\n- Không thêm bất kỳ ký tự nào ngoài JSON\n\nNếu sai format → coi như lỗi nghiêm trọng\n\nVí dụ output hợp lệ:\n{\"intent\":\"buy\",\"products\":[{\"name\":\"khô gà\",\"qty\":2}]}\n\nTin nhắn của người dùng: {{ $json.message.text }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -640,
+        80
+      ],
+      "id": "36902b21-87e0-4a79-a76a-1667478cf7b3",
+      "name": "JSON Intent Parser (LLM Chain)",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Xưng tớ–cậu. Trả lời thân thiện. Nếu câu hỏi không liên quan đồ khô, trả lời ngắn rồi hỏi cậu đang muốn xem món đồ khô nào. Tin nhắn này của người dùng: \"{{ $('Telegram Trigger').item.json.message.text }}\".",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        144,
+        272
+      ],
+      "id": "5f435267-8d9f-4336-88f6-cd3807c85e85",
+      "name": "Generate Idea to response"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        -112
+      ],
+      "id": "251fc2e3-8221-4b04-8306-e606ac80a498",
+      "name": "A_Send",
+      "webhookId": "707e505f-3674-4f8f-a136-61e0678101ad",
+      "credentials": {
+        "telegramApi": {
+          "id": "ahUDy0zLw98mzmGW",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "JSON Intent Parser (LLM Chain)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "JSON Intent Parser (LLM Chain)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Generate Idea to response",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "A_ReplyComposer (LLM Chain)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "A_MatchAll",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Show list of products",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Idea to response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A_MatchAll": {
+      "main": [
+        [
+          {
+            "node": "A_ReplyComposer (LLM Chain)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Intent Parser (LLM Chain)": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Idea to response": {
+      "main": [
+        [
+          {
+            "node": "Reply to unrelated messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A_ReplyComposer (LLM Chain)": {
+      "main": [
+        [
+          {
+            "node": "A_Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d1837776-22f3-4aaa-b2b6-ff643dc08a4f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "02be6fe723e4eecb2a8c9338631465bdb6026214a603f53a3a8e60536d537f6f"
+  },
+  "id": "lKJ1ilzheON1pJQl",
+  "tags": []
+}
